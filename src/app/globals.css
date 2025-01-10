@@ -122,3 +122,7 @@ p {
     @apply bg-background text-foreground;
     }
 }
+
+* {
+    direction: rtl !important;
+}
