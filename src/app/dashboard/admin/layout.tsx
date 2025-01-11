@@ -9,7 +9,7 @@ export default function AdminDashboardLayout({ children }: Props) {
   return (
     <div className="w-full h-full">
       <Sidebar />
-      <div className="w-full mr-[300px]">
+      <div className="mr-[300px]">
         <Header />
         <div className="mt-[75px] p-4">{children}</div>
       </div>
