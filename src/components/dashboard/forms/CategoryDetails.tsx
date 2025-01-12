@@ -26,6 +26,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
+import ImageUpload from "@/components/shared/ImageUpload";
 
 type Props = {
   data?: Category;
@@ -43,7 +44,7 @@ export default function CategoryDetails({ data }: Props) {
     },
   });
 
-  const isLoading = form.formState.isSubmitting;
+  const isSubmitting = form.formState.isSubmitting;
 
   useEffect(() => {
     if (data) {
@@ -73,7 +74,7 @@ export default function CategoryDetails({ data }: Props) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
-                disabled={isLoading}
+                disabled={isSubmitting}
                 control={form.control}
                 name="title"
                 render={({ field }) => (
@@ -87,7 +88,7 @@ export default function CategoryDetails({ data }: Props) {
                 )}
               />
               <FormField
-                disabled={isLoading}
+                disabled={isSubmitting}
                 control={form.control}
                 name="url"
                 render={({ field }) => (
@@ -101,7 +102,7 @@ export default function CategoryDetails({ data }: Props) {
                 )}
               />
               <FormField
-                disabled={isLoading}
+                disabled={isSubmitting}
                 control={form.control}
                 name="featured"
                 render={({ field }) => (
@@ -121,8 +122,21 @@ export default function CategoryDetails({ data }: Props) {
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={isLoading}>
-                {isLoading
+              <FormField
+                disabled={isSubmitting}
+                control={form.control}
+                name="image"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>انتخاب عکس</FormLabel>
+                    <FormControl>
+                      <ImageUpload type="cover" onChange={() => {}} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <Button type="submit" disabled={isSubmitting}>
+                {isSubmitting
                   ? "..."
                   : data?.id
                     ? "ذخیره دسته بندی"
