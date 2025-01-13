@@ -3,3 +3,9 @@ export interface IDashboardSidebarMenu {
   icon: string;
   link: string;
 }
+
+export interface IActionResponse<T = void> {
+  data?: T;
+  success: boolean;
+  error?: string | string[];
+}

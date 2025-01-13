@@ -1,13 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 type Props = {
   disable?: boolean;
-  onChange?: (value: string) => void;
+  onChange?: (value: File[]) => void;
   values?: string[];
-  type: "standard" | "profile" | "cover";
+  type: "standard" | "profile" | "multiple";
   allowedTypes?: string[];
 };
 
@@ -19,8 +19,8 @@ export default function ImageUpload({
   values,
 }: Props) {
   const [dragging, setDragging] = useState<boolean>(false);
-  const [file, setFile] = useState<File | null>(null);
-  const [preview, setPreview] = useState<string | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
 
   const handleDragOver = (event: any) => {
     event.preventDefault();
@@ -36,29 +36,41 @@ export default function ImageUpload({
     setDragging(false);
 
     const droppedFiles = event.dataTransfer.files;
-    if (droppedFiles.length > 0) {
+    if (droppedFiles && droppedFiles.length > 0) {
       handleFileChange(droppedFiles[0]);
     }
   };
+
+  useEffect(() => {
+    onChange?.(files);
+  }, [files]);
 
   // const isValidFileType = (file: File): boolean => {
   //   if (allowedTypes.length === 0) return true; // Allow all if no restrictions specified
   //   return allowedTypes.includes(file.type);
   // };
 
-  const handleFileChange = (file: File) => {
-    setFile(file);
-    const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result as string);
-    reader.readAsDataURL(file);
-  };
+  const handleFileChange = (files: File[]) => {
+    const filesTemp = type === "multiple" ? files : [files[0]];
+    const previewsTemp: string[] = []; // Array to store preview URLs
 
+    filesTemp.forEach((file) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        previewsTemp.push(reader.result as string);
+
+        if (previewsTemp.length === filesTemp.length) {
+          setFiles(filesTemp); // Assuming setFiles takes the array of files
+          setPreviews(previewsTemp);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+  };
   const handleFileUpload = (event: any) => {
-    const uploadedFile = event.target.files ? event.target.files[0] : null;
-    if (uploadedFile) {
+    const uploadedFile = event.target.files || null;
+    if (uploadedFile && uploadedFile.length > 0) {
       handleFileChange(uploadedFile);
-    } else {
-      alert("Invalid file type.");
     }
   };
 
@@ -92,9 +104,9 @@ export default function ImageUpload({
           className="hidden"
         />
         <div className="relative w-full h-full flex justify-center items-center">
-          {preview ? (
+          {previews.length > 0 ? (
             <Image
-              src={preview}
+              src={previews[0]}
               alt="Uploaded file preview"
               layout="fill"
               className="object-contain"

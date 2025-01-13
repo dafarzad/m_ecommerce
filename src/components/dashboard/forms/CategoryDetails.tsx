@@ -27,38 +27,71 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import ImageUpload from "@/components/shared/ImageUpload";
+import { upsertCategory } from "@/action/category.action";
+import { useToast } from "@/hooks/use-toast";
+import { useRouter } from "next/navigation";
 
 type Props = {
   data?: Category;
 };
 
 export default function CategoryDetails({ data }: Props) {
+  const { toast } = useToast();
+  const router = useRouter();
   const form = useForm<z.infer<typeof CategoryFromSchema>>({
     mode: "onChange",
     resolver: zodResolver(CategoryFromSchema),
     defaultValues: {
-      title: data?.title,
-      featured: data?.featured,
-      image: data?.image,
-      url: data?.url,
+      title: data?.title ?? "",
+      featured: data?.featured ?? false,
+      image: data?.image ?? null,
+      url: data?.url ?? "",
     },
   });
 
   const isSubmitting = form.formState.isSubmitting;
 
-  useEffect(() => {
-    if (data) {
-      form.reset({
-        title: data?.title,
-        featured: data?.featured,
-        image: data?.image,
-        url: data?.url,
-      });
-    }
-  }, [data, form]);
+  // useEffect(() => {
+  //   if (data) {
+  //     form.reset({
+  //       title: data?.title,
+  //       featured: data?.featured,
+  //       image: data?.image,
+  //       url: data?.url,
+  //     });
+  //   }
+  // }, [data, form]);
 
   async function onSubmit(values: z.infer<typeof CategoryFromSchema>) {
-    console.log(values);
+    console.log(values, "values<<<<<<<<<<<<<<<<<<<<<<<");
+    const formData = new FormData();
+    if (data?.id) {
+      formData.append("id", data.id);
+    }
+    formData.append("title", values.title);
+    formData.append("image", values.image[0]);
+    formData.append("url", values.url);
+    formData.append("featured", values.featured.toString());
+
+    const result = await upsertCategory(formData);
+
+    if (!result.success) {
+      toast({
+        variant: "destructive",
+        title: "خطا",
+        description: result.error,
+      });
+      if (data?.id) {
+        router.refresh();
+      } else {
+        router.push("/dashboard/admin/categorie");
+      }
+    } else {
+      toast({
+        title: "نتیجه",
+        description: "با موفقیت انجام شد",
+      });
+    }
   }
 
   return (
@@ -74,35 +107,40 @@ export default function CategoryDetails({ data }: Props) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               <FormField
-                disabled={isSubmitting}
                 control={form.control}
                 name="title"
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormLabel>عنوان دسته بندی</FormLabel>
                     <FormControl>
-                      <Input placeholder="عنوان" {...field} />
+                      <Input
+                        disabled={isSubmitting}
+                        placeholder="عنوان"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                disabled={isSubmitting}
                 control={form.control}
                 name="url"
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormLabel>مسیر دسته بندی</FormLabel>
                     <FormControl>
-                      <Input placeholder="/category-url" {...field} />
+                      <Input
+                        disabled={isSubmitting}
+                        placeholder="/category-url"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
               />
               <FormField
-                disabled={isSubmitting}
                 control={form.control}
                 name="featured"
                 render={({ field }) => (
@@ -111,6 +149,7 @@ export default function CategoryDetails({ data }: Props) {
                       <Checkbox
                         checked={field.value}
                         onCheckedChange={field.onChange}
+                        disabled={isSubmitting}
                       />
                     </FormControl>
                     <div className="space-y-1 leading-none">
@@ -123,19 +162,26 @@ export default function CategoryDetails({ data }: Props) {
                 )}
               />
               <FormField
-                disabled={isSubmitting}
                 control={form.control}
                 name="image"
                 render={({ field }) => (
                   <FormItem className="flex-1">
                     <FormLabel>انتخاب عکس</FormLabel>
                     <FormControl>
-                      <ImageUpload type="cover" onChange={() => {}} />
+                      <ImageUpload
+                        type="standard"
+                        onChange={(values) => {
+                          field.onChange([...values]);
+                        }}
+                      />
                     </FormControl>
                   </FormItem>
                 )}
               />
-              <Button type="submit" disabled={isSubmitting}>
+              <Button
+                type="submit"
+                // disabled={isSubmitting}
+              >
                 {isSubmitting
                   ? "..."
                   : data?.id
