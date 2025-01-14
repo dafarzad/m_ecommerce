@@ -96,7 +96,7 @@ export default function CategoryDetails({ data }: Props) {
 
   return (
     <AlertDialog>
-      <Card className="w-full">
+      <Card className="w-full text-right">
         <CardHeader>
           <CardTitle>اطلاعات دسته بندی</CardTitle>
           <CardDescription>

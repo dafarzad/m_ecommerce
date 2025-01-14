@@ -5,7 +5,25 @@ export interface IDashboardSidebarMenu {
 }
 
 export interface IActionResponse<T = void> {
-  data?: T;
+  result?: T;
   success: boolean;
   error?: string | string[];
+}
+
+export interface QueryOptions<T> {
+  page?: number;
+  pageSize?: number;
+  sortBy?: keyof T;
+  sortOrder?: "asc" | "desc";
+  filters?: Partial<T>;
+  search?: string;
+  searchFields?: (keyof T)[];
+}
+
+export interface PaginatedResult<T> {
+  data: T[];
+  total: number;
+  page: number;
+  pageSize: number;
+  totalPages: number;
 }

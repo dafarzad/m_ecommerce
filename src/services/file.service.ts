@@ -42,14 +42,13 @@ class FileService {
     return relativePath;
   }
 
-  async deleteFile(fileUrl: string) {
-    if (!fileUrl) {
+  async deleteFile(relativePath: string) {
+    if (!relativePath) {
       throw new Error("File URL is required");
     }
 
-    const urlObj = new URL(fileUrl);
     // Extract the pathname and construct the absolute path
-    const filePath = path.join(process.cwd(), "public", urlObj.pathname);
+    const filePath = path.join(process.cwd(), "public", relativePath);
 
     // Check if file exists before trying to delete it
     if (!fs.existsSync(filePath)) {
@@ -65,6 +64,10 @@ class FileService {
   getUrlFromRelativePath(relativePath: string) {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"; // Adjust to your deployment URL
     return `${baseUrl}/${relativePath}`;
+  }
+
+  relativePathToUrl(relativePath: string): string {
+    return `http://localhost:3000/${relativePath}`;
   }
 }
 
