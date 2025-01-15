@@ -78,7 +78,7 @@ export default function SubCategoryDetails({ data, categories }: Props) {
     if (data?.id) {
       formData.append("id", data.id);
     }
-    if (data?.image && data.image.length > 0) {
+    if (values?.image && values.image.length > 0) {
       formData.append("image", values.image[0]);
     }
     formData.append("title", values.title);
@@ -86,6 +86,10 @@ export default function SubCategoryDetails({ data, categories }: Props) {
     formData.append("featured", values.featured.toString());
     formData.append("categoryId", values.categoryId);
 
+    console.log(
+      data?.image && data.image.length > 0,
+      "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>",
+    );
     console.log(values, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
 
     const result = await upsertSubCategory(formData);

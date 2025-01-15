@@ -69,7 +69,7 @@ export default function CategoryDetails({ data }: Props) {
       formData.append("id", data.id);
     }
     formData.append("title", values.title);
-    if (data?.image && data?.image.length > 0) {
+    if (values?.image && values?.image.length > 0) {
       formData.append("image", values.image[0]);
     }
     formData.append("url", values.url);

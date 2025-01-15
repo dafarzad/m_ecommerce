@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 import { useModal } from "@/providers/modal-provider";
 import React, { useState } from "react";
-import { useToast } from "@/hooks/use-toast";
+
 import { useRouter } from "next/navigation";
 import {
   AlertDialog,
@@ -34,18 +34,24 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import CustomModal from "@/components/shared/custom-modal";
-import { deleteCategoryById, getCategoryById } from "@/action/category.action";
 import { SubCategoryWithCategoryType } from "@/lib/type";
 
 export function columnsFunc<T>(
   columns: ColumnDef<T>[],
   modalContent: (rowData: T) => React.ReactNode,
+  onDelete: (rowData: T) => void,
 ): ColumnDef<T>[] {
   const action = {
     id: "actions",
     cell: ({ row }) => {
       const rowData = row.original;
-      return <CellActions<T> rowData={rowData} modalContent={modalContent} />;
+      return (
+        <CellActions<T>
+          rowData={rowData}
+          modalContent={modalContent}
+          onDelete={onDelete}
+        />
+      );
     },
   };
   const actionExists = columns[columns.length - 1].id === "actions";
@@ -121,12 +127,17 @@ export const columns: ColumnDef<SubCategoryWithCategoryType>[] = [
 type CellActionsProps<T> = {
   rowData: T;
   modalContent: (rowData: T) => React.ReactNode;
+  onDelete: (rowData: T) => void;
 };
 
-function CellActions<T>({ rowData, modalContent }: CellActionsProps<T>) {
+function CellActions<T>({
+  rowData,
+  modalContent,
+  onDelete,
+}: CellActionsProps<T>) {
   const { setClose, setOpen } = useModal();
   const [loading, setLoading] = useState(false);
-  const { toast } = useToast();
+
   const router = useRouter();
 
   if (!rowData) return null;
@@ -183,19 +194,7 @@ function CellActions<T>({ rowData, modalContent }: CellActionsProps<T>) {
             className="bg-destructive hover:bg-destructive mb-2 text-white"
             onClick={async () => {
               setLoading(true);
-              const response = await deleteCategoryById(rowData.id);
-              if (response.success) {
-                toast({
-                  title: "حذف",
-                  description: "با موفقیت انجام شد",
-                });
-              } else {
-                toast({
-                  variant: "destructive",
-                  title: "حذف",
-                  description: response.error,
-                });
-              }
+              onDelete(rowData);
               setLoading(false);
               router.refresh();
               setClose?.();
