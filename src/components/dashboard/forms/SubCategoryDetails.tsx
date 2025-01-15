@@ -1,9 +1,11 @@
 "use client";
 
-import { Category } from "@prisma/client";
-import * as z from "zod";
+import { Category, SubCategory } from "@prisma/client";
 import { useForm } from "react-hook-form";
-import { CategoryFormSchema } from "@/lib/schemas";
+import {
+  SubCategoryFormSchema,
+  SubCategoryFormSchemaType,
+} from "@/lib/schemas";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useEffect } from "react";
 import { AlertDialog } from "@/components/ui/alert-dialog";
@@ -27,25 +29,34 @@ import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Button } from "@/components/ui/button";
 import ImageUpload from "@/components/shared/ImageUpload";
-import { upsertCategory } from "@/action/category.action";
 import { useToast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { upsertSubCategory } from "@/action/subcategory.action";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 type Props = {
-  data?: Category;
+  categories: Category[];
+  data?: SubCategory;
 };
 
-export default function CategoryDetails({ data }: Props) {
+export default function SubCategoryDetails({ data, categories }: Props) {
   const { toast } = useToast();
   const router = useRouter();
-  const form = useForm<z.infer<typeof CategoryFormSchema>>({
+  const form = useForm<SubCategoryFormSchemaType>({
     mode: "onChange",
-    resolver: zodResolver(CategoryFormSchema),
+    resolver: zodResolver(SubCategoryFormSchema),
     defaultValues: {
       title: data?.title ?? "",
       featured: data?.featured ?? false,
       image: data?.image ?? null,
       url: data?.url ?? "",
+      categoryId: data?.categoryId ?? "",
     },
   });
 
@@ -62,20 +73,22 @@ export default function CategoryDetails({ data }: Props) {
   //   }
   // }, [data, form]);
 
-  async function onSubmit(values: z.infer<typeof CategoryFormSchema>) {
-    console.log(values, "values<<<<<<<<<<<<<<<<<<<<<<<");
+  async function onSubmit(values: SubCategoryFormSchemaType) {
     const formData = new FormData();
     if (data?.id) {
       formData.append("id", data.id);
     }
-    formData.append("title", values.title);
-    if (data?.image && data?.image.length > 0) {
+    if (data?.image && data.image.length > 0) {
       formData.append("image", values.image[0]);
     }
+    formData.append("title", values.title);
     formData.append("url", values.url);
     formData.append("featured", values.featured.toString());
+    formData.append("categoryId", values.categoryId);
 
-    const result = await upsertCategory(formData);
+    console.log(values, "<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+
+    const result = await upsertSubCategory(formData);
 
     if (!result.success) {
       toast({
@@ -83,16 +96,17 @@ export default function CategoryDetails({ data }: Props) {
         title: "خطا",
         description: result.error,
       });
-      if (data?.id) {
-        router.refresh();
-      } else {
-        router.push("/dashboard/admin/categorie");
-      }
+      return;
     } else {
       toast({
         title: "نتیجه",
         description: "با موفقیت انجام شد",
       });
+      if (data?.id) {
+        router.refresh();
+      } else {
+        router.push("/dashboard/admin/subCategories");
+      }
     }
   }
 
@@ -100,9 +114,10 @@ export default function CategoryDetails({ data }: Props) {
     <AlertDialog>
       <Card className="w-full text-right">
         <CardHeader>
-          <CardTitle>اطلاعات دسته بندی</CardTitle>
+          <CardTitle>اطلاعات زیرگروه دسته بندی</CardTitle>
           <CardDescription>
-            {data?.id ? `ویرایش دسته بندی ${data?.title}` : "افزودن دسته بندی"}
+            در این فرم شما قادر هستید برای دسته بندی ها، زیر گروه تعریف کنید و
+            آنها را مدیریت کنید.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -113,7 +128,7 @@ export default function CategoryDetails({ data }: Props) {
                 name="title"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>عنوان دسته بندی</FormLabel>
+                    <FormLabel>عنوان</FormLabel>
                     <FormControl>
                       <Input
                         disabled={isSubmitting}
@@ -127,14 +142,48 @@ export default function CategoryDetails({ data }: Props) {
               />
               <FormField
                 control={form.control}
+                name="categoryId"
+                render={({ field }) => (
+                  <FormItem className="flex-1">
+                    <FormLabel>دسته بندی</FormLabel>
+                    <FormControl>
+                      <Select
+                        disabled={isSubmitting || categories.length === 0}
+                        onValueChange={field.onChange}
+                        value={field.value}
+                        defaultValue={field.value}
+                      >
+                        <SelectTrigger>
+                          <SelectValue
+                            defaultValue={field.value}
+                            placeholder="انتخاب دسته بندی"
+                          />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {categories.map((category) => {
+                            return (
+                              <SelectItem key={category.id} value={category.id}>
+                                {category.title}
+                              </SelectItem>
+                            );
+                          })}
+                        </SelectContent>
+                      </Select>
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="url"
                 render={({ field }) => (
                   <FormItem className="flex-1">
-                    <FormLabel>مسیر دسته بندی</FormLabel>
+                    <FormLabel>مسیر</FormLabel>
                     <FormControl>
                       <Input
                         disabled={isSubmitting}
-                        placeholder="/category-url"
+                        placeholder="/subcategory-url"
                         {...field}
                       />
                     </FormControl>

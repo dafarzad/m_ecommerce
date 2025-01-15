@@ -1,3 +1,5 @@
+import { Prisma } from "@prisma/client";
+
 export interface IDashboardSidebarMenu {
   label: string;
   icon: string;
@@ -27,3 +29,7 @@ export interface PaginatedResult<T> {
   pageSize: number;
   totalPages: number;
 }
+
+export type SubCategoryWithCategoryType = Prisma.SubCategoryGetPayload<{
+  include: { category: true };
+}>;

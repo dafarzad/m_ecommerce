@@ -1,12 +1,16 @@
 import "server-only";
-import { Category, Prisma } from "@prisma/client";
+import { Category, Prisma, SubCategory } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
-import { PaginatedResult, QueryOptions } from "@/lib/type";
+import {
+  PaginatedResult,
+  QueryOptions,
+  SubCategoryWithCategoryType,
+} from "@/lib/type";
 
-class CategoryService {
+class SubCategoryService {
   async getAll(
-    options: QueryOptions<Prisma.CategoryDelegate>,
-  ): Promise<PaginatedResult<Prisma.CategoryGetPayload<{}>>> {
+    options: QueryOptions<Prisma.SubCategoryDelegate>,
+  ): Promise<PaginatedResult<SubCategoryWithCategoryType>> {
     const {
       page = 1,
       pageSize = 10,
@@ -33,13 +37,16 @@ class CategoryService {
     const orderBy = sortBy ? { [sortBy]: sortOrder } : undefined;
 
     const [data, total] = await Promise.all([
-      prisma.category.findMany({
+      prisma.subCategory.findMany({
         where,
+        include: {
+          category: true,
+        },
         skip,
         take: pageSize,
         orderBy,
       }),
-      prisma.category.count({ where }),
+      prisma.subCategory.count({ where }),
     ]);
 
     return {
@@ -52,27 +59,28 @@ class CategoryService {
   }
 
   async getById(id: string): Promise<Category | null> {
-    return prisma.category.findUnique({ where: { id } });
+    return prisma.subCategory.findUnique({ where: { id } });
   }
 
   async delete(id: string): Promise<boolean> {
-    return (await prisma.category.delete({ where: { id } })) !== null;
+    return (await prisma.subCategory.delete({ where: { id } })) !== null;
   }
 
-  async Upsert(params: Partial<Category>) {
-    let category = null;
+  async Upsert(params: Partial<SubCategory>) {
+    let subCategory = null;
     if (!params.id) {
-      category = await prisma.category.create({
+      subCategory = await prisma.subCategory.create({
         data: {
           url: params.url?.trim().toLowerCase() || "",
           featured: params?.featured,
           image: params.image?.trim() || "",
           title: params.title?.trim().toLowerCase() || "",
+          categoryId: params.categoryId,
           updatedAt: new Date(),
         },
       });
     } else {
-      category = await prisma.category.update({
+      subCategory = await prisma.subCategory.update({
         where: {
           id: params.id,
         },
@@ -81,16 +89,17 @@ class CategoryService {
           featured: params?.featured,
           image: params.image?.trim() || "",
           title: params.title?.trim().toLowerCase() || "",
+          categoryId: params.categoryId,
           updatedAt: new Date(),
         },
       });
     }
 
-    return category;
+    return subCategory;
   }
 
-  async alreadyExists(param: Partial<Category>) {
-    const alreadyExists = await prisma.category.findFirst({
+  async alreadyExists(param: Partial<SubCategory>) {
+    const alreadyExists = await prisma.subCategory.findFirst({
       where: {
         OR: [
           { title: { equals: param.title, mode: "insensitive" } },
@@ -103,4 +112,4 @@ class CategoryService {
   }
 }
 
-export default new CategoryService();
+export default new SubCategoryService();
