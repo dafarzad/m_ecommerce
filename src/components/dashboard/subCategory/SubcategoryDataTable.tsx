@@ -1,12 +1,9 @@
 "use client";
 
-import { DataTable } from "@/components/ui/data-table";
+import { columnsFunc, DataTable } from "@/components/ui/data-table";
 import { Plus } from "lucide-react";
 import SubCategoryDetails from "@/components/dashboard/forms/SubCategoryDetails";
-import {
-  columns,
-  columnsFunc,
-} from "@/app/dashboard/admin/subCategories/new/columns";
+import { columns } from "@/app/dashboard/admin/subCategories/new/columns";
 import React, { useMemo } from "react";
 import { Category, SubCategory } from "@prisma/client";
 import { useToast } from "@/hooks/use-toast";

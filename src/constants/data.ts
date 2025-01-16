@@ -1,6 +1,6 @@
-import { IDashboardSidebarMenu } from "@/lib/type";
+import { ISidebarMenuType } from "@/lib/type";
 
-export const adminDashboardSidebarOptions: IDashboardSidebarMenu[] = [
+export const adminDashboardSidebarOptions: ISidebarMenuType[] = [
   {
     label: "داشبورد",
     icon: "dashboard",
@@ -31,4 +31,42 @@ export const adminDashboardSidebarOptions: IDashboardSidebarMenu[] = [
     icon: "coupon",
     link: "/dashboard/admin/coupons",
   },
-];
+] as const;
+
+export const sellerDashboardSidebarOptions: ISidebarMenuType[] = [
+  {
+    label: "داشبورد",
+    icon: "dashboard",
+    link: "",
+  },
+  {
+    label: "سفارشات",
+    icon: "order",
+    link: "orders",
+  },
+  {
+    label: "محصولات",
+    icon: "products",
+    link: "products",
+  },
+  {
+    label: "موجودی",
+    icon: "inventory",
+    link: "inventory",
+  },
+  {
+    label: "تخفیف ها",
+    icon: "coupon",
+    link: "coupons",
+  },
+  {
+    label: "حمل و نقل",
+    icon: "shipping",
+    link: "shipping",
+  },
+  {
+    label: "تنظیمات",
+    icon: "settings",
+    link: "settings",
+  },
+] as const;

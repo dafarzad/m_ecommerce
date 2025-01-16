@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 
 type Props = {
   disable?: boolean;
@@ -21,6 +21,7 @@ export default function ImageUpload({
   const [dragging, setDragging] = useState<boolean>(false);
   const [files, setFiles] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
+  const inputId = useId();
 
   const handleDragOver = (event: any) => {
     event.preventDefault();
@@ -92,14 +93,14 @@ export default function ImageUpload({
     return (
       <div
         className={`border-2 border-dashed rounded-md p-6 text-center cursor-pointer h-60 ${dragging ? "border-blue-500 bg-blue-50" : "border-gray-300"}`}
-        onClick={() => document.getElementById("file-input")?.click()}
+        onClick={() => document.getElementById(inputId)?.click()}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
       >
         <input
           type="file"
-          id="file-input"
+          id={inputId}
           onChange={handleFileUpload}
           className="hidden"
         />

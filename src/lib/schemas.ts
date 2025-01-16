@@ -29,3 +29,22 @@ export const SubCategoryFormSchema = z.object({
 });
 
 export type SubCategoryFormSchemaType = z.infer<typeof SubCategoryFormSchema>;
+
+export const StoreFormSchema = z.object({
+  id: z.string().uuid().optional(),
+  title: z
+    .string()
+    .nonempty("عنوان دسته بندی الزامی است")
+    .min(2, "عنوان دسته بندی باید حداقل دو کاراکتر باشد")
+    .max(50, "عنوان دسته بندی باید حداکثر 50 کاراکتر باشد"),
+  logo: z.any().optional(),
+  cover: z.any().optional(),
+  url: z.string(),
+  description: z.string(),
+  email: z.string(),
+  phone: z.string(),
+  featured: z.any(),
+  status: z.string().default("PENDING").optional(),
+});
+
+export type StoreFormSchemaType = z.infer<typeof StoreFormSchema>;

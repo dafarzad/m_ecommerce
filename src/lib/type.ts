@@ -1,6 +1,6 @@
 import { Prisma } from "@prisma/client";
 
-export interface IDashboardSidebarMenu {
+export interface ISidebarMenuType {
   label: string;
   icon: string;
   link: string;
